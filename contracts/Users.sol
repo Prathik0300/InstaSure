@@ -3,36 +3,13 @@ pragma experimental ABIEncoderV2;
 
 
 contract allUsers{
-    struct userBlock{
-        string name;
-        string userName;
-        string userType;
-        address blockAddress;
-        uint password;
-        string mobile;
-        bool flag;
-    }
-
     struct response{
         uint status;
         string message;
     }
-
-    mapping (string => userBlock) public userDb;
     
     function getEncryptedPassword(string memory password) public pure returns(uint){
         return uint(keccak256(abi.encodePacked(password)));
-    }
-
-    function setUser(string memory name, string memory _uName,string memory _uType, string memory password,string memory mobile,address _address) public{ 
-            string memory localName = name;
-            string memory localUserName = _uName;
-            string memory localUserType = _uType;
-            uint localPassword = getEncryptedPassword(password);
-            string memory localMobile = mobile;
-            address userAddress = _address;
-            userBlock memory user = userBlock(localName,localUserName,localUserType,userAddress,localPassword,localMobile,true);
-            userDb[mobile] = user;
     }
 }
 
@@ -56,7 +33,7 @@ contract User is allUsers{
         return false;
     }
 
-    function registerUser(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public{
+    function registerUser(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public returns (response memory){
         if(!checkUserExists(mobile)){
             string memory localName = name;
             string memory localUserName = _uName;
@@ -65,11 +42,11 @@ contract User is allUsers{
             string memory localMobile = mobile;
             address userAddress = _address;
             user memory _user = user(localName,localUserName,localUserType,userAddress,localPassword,localMobile,true);
-            _allUsers.setUser(localName,localUserName,localUserType,password,localMobile,userAddress);
             registeredUsers[mobile] = _user;
+            return response(200,"User registered successfully!");
         }
         else{
-            revert("User already exists");
+            return response(409,"User already exists in the database");
         }
     }
 
@@ -96,12 +73,13 @@ contract User is allUsers{
         }
     }
 
-    function setNewPassword(string memory mobile,string memory _password) public{
+    function setNewPassword(string memory mobile,string memory _password) public returns (response memory){
         if(checkUserExists(mobile)){
             registeredUsers[mobile].password = _allUsers.getEncryptedPassword(_password);
+            return response(200,"Password changed successfully");
         }
         else{
-            revert("No user found");
+            return response(409,"User does not exist.");
         }
     }
 }
@@ -112,6 +90,9 @@ contract Doctor is allUsers{
     struct doctor{
         string name;
         string userName;
+        string doctorId;
+        string speciality;
+        string university;
         string userType;
         address blockAddress;
         uint password;
@@ -126,7 +107,7 @@ contract Doctor is allUsers{
         return false;
     }
 
-    function registerDoctor(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public{
+    function registerDoctor(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address,string memory _doctorId,string memory _speciality,string memory _university) public returns(response memory){
         if(!checkDoctorExists(mobile)){
             string memory localName = name;
             string memory localUserName = _uName;
@@ -134,12 +115,15 @@ contract Doctor is allUsers{
             uint localPassword = _allUsers.getEncryptedPassword(password);
             string memory localMobile = mobile;
             address userAddress = _address;
-            doctor memory _doctor = doctor(localName,localUserName,localUserType,userAddress,localPassword,localMobile,true);
-            _allUsers.setUser(localName,localUserName,localUserType,password,localMobile,userAddress);
+            string memory doctorId = _doctorId;
+            string memory speciality = _speciality;
+            string memory university = _university;
+            doctor memory _doctor = doctor(localName,localUserName,doctorId,speciality,university,localUserType,userAddress,localPassword,localMobile,true);
             registeredDoctors[mobile] = _doctor;
+            return response(200,"User registered successfully!");
         }
         else{
-            revert("User already exists");
+            return response(409,"User already exists in the database");
         }
     }
 
@@ -166,12 +150,13 @@ contract Doctor is allUsers{
         }
     }
 
-    function setNewPassword(string memory mobile,string memory _password) public{
+    function setNewPassword(string memory mobile,string memory _password) public returns(response memory){
         if(checkDoctorExists(mobile)){
             registeredDoctors[mobile].password = _allUsers.getEncryptedPassword(_password);
+            return response(200,"Password changed successfully");
         }
         else{
-            revert("No user found");
+            return response(409,"User does not exist.");
         }
     }
 }
@@ -196,7 +181,7 @@ contract Police is allUsers{
         return false;
     }
 
-    function registerPolice(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public{
+    function registerPolice(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public returns (response memory){
         if(!checkPoliceExists(mobile)){
             string memory localName = name;
             string memory localUserName = _uName;
@@ -205,11 +190,11 @@ contract Police is allUsers{
             string memory localMobile = mobile;
             address userAddress = _address;
             police memory _police = police(localName,localUserName,localUserType,userAddress,localPassword,localMobile,true);
-            _allUsers.setUser(localName,localUserName,localUserType,password,localMobile,userAddress);
             registeredPolice[mobile] = _police;
+            return response(200,"User registered successfully!");
         }
         else{
-            revert("User already exists");
+            return response(409,"User already exists in the database");
         }
     }
 
@@ -236,12 +221,13 @@ contract Police is allUsers{
         }
     }
 
-    function setNewPassword(string memory mobile,string memory _password) public{
+    function setNewPassword(string memory mobile,string memory _password) public returns (response memory){
         if(checkPoliceExists(mobile)){
             registeredPolice[mobile].password = _allUsers.getEncryptedPassword(_password);
+            return response(200,"Password changed successfully");
         }
         else{
-            revert("No user found");
+            return response(409,"Police does not exist.");
         }
     }
 }
@@ -266,7 +252,7 @@ contract Insurer is allUsers{
         return false;
     }
 
-    function registerInsurer(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public{
+    function registerInsurer(string memory name,string memory _uName,string memory _uType,string memory password,string memory mobile,address _address) public returns (response memory){
         if(!checkInsurerExists(mobile)){
             string memory localName = name;
             string memory localUserName = _uName;
@@ -275,11 +261,11 @@ contract Insurer is allUsers{
             string memory localMobile = mobile;
             address userAddress = _address;
             insurer memory _insurer = insurer(localName,localUserName,localUserType,userAddress,localPassword,localMobile,true);
-            _allUsers.setUser(localName,localUserName,localUserType,password,localMobile,userAddress);
             registeredInsurer[mobile] = _insurer;
+            return response(200,"User registered successfully!");
         }
         else{
-            revert("User already exists");
+            return response(409,"User already exists in the database");
         }
     }
 
@@ -306,12 +292,13 @@ contract Insurer is allUsers{
         }
     }
 
-    function setNewPassword(string memory mobile,string memory _password) public{
+    function setNewPassword(string memory mobile,string memory _password) public returns (response memory){
         if(checkInsurerExists(mobile)){
             registeredInsurer[mobile].password = _allUsers.getEncryptedPassword(_password);
+            return response(200,"Password changed successfully");
         }
         else{
-            revert("No user found");
+            return response(409,"Insurer does not exist.");
         }
     }
 }
