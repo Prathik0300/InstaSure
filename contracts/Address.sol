@@ -14,9 +14,9 @@ contract Address{
 
     mapping (address => userBlock) public userDb;
 
-    constructor() public{
+    // constructor() public{
         
-    }
+    // }
 
     function checkUserExists(address blockAddress) private view returns(bool){
         if(userDb[blockAddress].flag == true) return true;
